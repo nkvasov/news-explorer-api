@@ -1,17 +1,14 @@
 const { Schema, model } = require('mongoose');
+const validator = require('validator');
 
 const articleSchema = new Schema({
   title: {
     type: String,
-    required: true,
-    // minlength: 2,
-    // maxlength: 30,
+    required: [true, 'Поле "title" должно быть заполнено'],
   },
   keyword: {
     type: String,
-    required: true,
-    // minlength: 2,
-    // maxlength: 30,
+    required: [true, 'Поле "keyword" должно быть заполнено'],
   },
   text: {
     type: String,
@@ -29,22 +26,20 @@ const articleSchema = new Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        const regex = /^https?:\/\/(www\.)?[^а-яё\s]{3,}#?$/;
-        return regex.test(v);
+      validator(url) {
+        return validator.isURL(url);
       },
-      message: 'Невалидный URL-адрес',
+      message: 'Невалидный URL-адрес в поле "link"',
     },
   },
   image: {
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        const regex = /^https?:\/\/(www\.)?[^а-яё\s]{3,}#?$/;
-        return regex.test(v);
+      validator(url) {
+        return validator.isURL(url);
       },
-      message: 'Невалидный URL-адрес',
+      message: 'Невалидный URL-адрес в поле "image"',
     },
   },
   owner: {
@@ -54,4 +49,4 @@ const articleSchema = new Schema({
   },
 });
 
-module.exports = model('card', articleSchema);
+module.exports = model('article', articleSchema);
