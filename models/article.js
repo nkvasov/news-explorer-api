@@ -43,9 +43,15 @@ const articleSchema = new Schema({
     },
   },
   owner: {
+    // type: Schema.Types.ObjectId,
+    // required: true,
+    // ref: 'user',
+    // select: false,
+
     type: String,
     required: true,
-    select: false,
+    ref: 'user',
+    // select: false,
   },
 });
 

@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-// const { NODE_ENV, JWT_SECRET, mongoPath } = process.env;
+// const { NODE_ENV, JWT_SECRET } = process.env;
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -8,19 +8,18 @@ const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const cors = require('cors');
+const errorHandler = require('./middlewares/error-handler.js');
+const { mongoPath } = require('./utils/constants');
 
-const userRoutes = require('./routes/users.js');
-const articleRoutes = require('./routes/artcles');
 const routes = require('./routes/index');
 
-const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth.js');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const rateLimiter = require('./middlewares/rate-limiter');
 
 const app = express();
 const { PORT = 3000 } = process.env;
 
-mongoose.connect('mongodb://localhost:27017/newsdb', {
+mongoose.connect(mongoPath, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -30,27 +29,13 @@ app.use('*', cors());
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(requestLogger);
+app.use(rateLimiter);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().required(),
-  }),
-}), createUser);
+app.use(routes);
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-
-app.use(auth);
-
-// app.use('/', userRoutes);
-// app.use('/', articleRoutes);
-app.use('/', routes);
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT);
 
@@ -64,4 +49,8 @@ app.listen(PORT);
 
 // {
 //   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmRiMjc4NTIzYThmMDA3YjFiNzMyMmMiLCJpYXQiOjE2MDgxOTgxNzIsImV4cCI6MTYwODgwMjk3Mn0.Pjq4IvziQw9oeIWTy7XaAWuwYhALGn53jQhNU9MBGLQ"
+// }
+
+// {
+//   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmRmMjJmN2RjMWVkOTA1ZmQ3OGI0MjIiLCJpYXQiOjE2MDg0NTkwNjcsImV4cCI6MTYwOTA2Mzg2N30.5lJKW2nKQ7hNWlgFsdhK9S8CSJXAZj4sp_EJRkJPfe8"
 // }

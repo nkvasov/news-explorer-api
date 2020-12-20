@@ -4,6 +4,7 @@ const ForbiddenError = require('../errors/forbidden-error');
 
 const getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
+    // .populate('owner')
     .then((data) => {
       res.send(data);
     })
