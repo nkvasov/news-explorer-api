@@ -35,7 +35,6 @@ const createUser = (req, res, next) => {
     throw new ValidationError('Введите имя пользователя, e-mail и пароль');
   }
   User.findOne({ email })
-  // Вставить orFail?
     .then((user) => {
       if (user) {
         throw new ConflictError('Пользователь с таким e-mail уже существует');
@@ -60,19 +59,16 @@ const login = (req, res, next) => {
     throw new ValidationError('Введите e-mail и пароль');
   }
   User.findOne({ email }).select('+password')
-  // Вставить orFail
-    .then((user) => {
-      if (!user) {
-        throw new AuthError('Неправильные почта или пароль');
-      }
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new AuthError('Неправильные почта или пароль');
-          }
-          return user;
-        });
+    .orFail(() => {
+      throw new AuthError('Неправильные почта или пароль');
     })
+    .then((user) => bcrypt.compare(password, user.password)
+      .then((matched) => {
+        if (!matched) {
+          throw new AuthError('Неправильные почта или пароль');
+        }
+        return user;
+      }))
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },

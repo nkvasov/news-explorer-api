@@ -4,23 +4,33 @@ const validator = require('validator');
 const articleSchema = new Schema({
   title: {
     type: String,
-    required: [true, 'Поле "title" должно быть заполнено'],
+    required: true,
+    minlength: 2,
+    maxlength: 500,
   },
   keyword: {
     type: String,
-    required: [true, 'Поле "keyword" должно быть заполнено'],
+    required: true,
+    minlength: 2,
+    maxlength: 100,
   },
   text: {
     type: String,
     required: true,
+    minlength: 10,
+    maxlength: 100000,
   },
   date: {
     type: String,
     required: true,
+    minlength: 4,
+    maxlength: 25,
   },
   source: {
     type: String,
     required: true,
+    minlength: 2,
+    maxlength: 200,
   },
   link: {
     type: String,
@@ -43,15 +53,10 @@ const articleSchema = new Schema({
     },
   },
   owner: {
-    // type: Schema.Types.ObjectId,
-    // required: true,
-    // ref: 'user',
-    // select: false,
-
     type: String,
     required: true,
     ref: 'user',
-    // select: false,
+    select: false,
   },
 });
 

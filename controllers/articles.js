@@ -4,7 +4,6 @@ const ForbiddenError = require('../errors/forbidden-error');
 
 const getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
-    // .populate('owner')
     .then((data) => {
       res.send(data);
     })
@@ -12,35 +11,14 @@ const getArticles = (req, res, next) => {
 };
 
 const createArticle = async (req, res, next) => {
-  // const {
-  //   keyword,
-  //   title,
-  //   text,
-  //   date,
-  //   source,
-  //   link,
-  //   image,
-  // } = req.body;
-  // const owner = req.user._id;
-
   try {
-    // const newArticle = await Article.create({
-    //   keyword,
-    //   title,
-    //   text,
-    //   date,
-    //   source,
-    //   link,
-    //   image,
-    //   owner,
-    // });
     const newArticle = await Article.create({ ...req.body, owner: req.user._id });
     if (!newArticle) {
       throw new NotFoundError('Ошибка! Что-то пошло не так. Попробуйте еще раз');
     }
     return res.status(201).send(newArticle);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
