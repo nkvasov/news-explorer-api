@@ -10,15 +10,16 @@ const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-error');
 const AuthError = require('../errors/auth-error');
 const ConflictError = require('../errors/conflict-error');
+const messages = require('../utils/constants');
 
 const getUserInfo = (req, res, next) => {
   const id = req.user._id;
   if (!id) {
-    throw new AuthError('Ошибка авторизации');
+    throw new AuthError(messages.authErr);
   }
   User.findById(id)
     .orFail(() => {
-      throw new NotFoundError('Пользователь с таким id не найден');
+      throw new NotFoundError(messages.notFoundUserErr);
     })
     .then((user) => res.status(200).send(user))
     .catch(next);
@@ -32,12 +33,12 @@ const createUser = (req, res, next) => {
   } = req.body;
 
   if (!email || !password || !name) {
-    throw new ValidationError('Введите имя пользователя, e-mail и пароль');
+    throw new ValidationError(messages.validationUserSignupErr);
   }
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new ConflictError('Пользователь с таким e-mail уже существует');
+        throw new ConflictError(messages.conflictEmailErr);
       }
       return bcrypt.hash(password, SALT_ROUND);
     })
@@ -56,16 +57,16 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new ValidationError('Введите e-mail и пароль');
+    throw new ValidationError(messages.validationUserSigninErr);
   }
   User.findOne({ email }).select('+password')
     .orFail(() => {
-      throw new AuthError('Неправильные почта или пароль');
+      throw new AuthError(messages.authDataErr);
     })
     .then((user) => bcrypt.compare(password, user.password)
       .then((matched) => {
         if (!matched) {
-          throw new AuthError('Неправильные почта или пароль');
+          throw new AuthError(messages.authDataErr);
         }
         return user;
       }))

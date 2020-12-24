@@ -1,6 +1,7 @@
 const Article = require('../models/article');
 const NotFoundError = require('../errors/not-found-err');
 const ForbiddenError = require('../errors/forbidden-error');
+const messages = require('../utils/constants');
 
 const getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
@@ -12,10 +13,13 @@ const getArticles = (req, res, next) => {
 
 const createArticle = async (req, res, next) => {
   try {
-    const newArticle = await Article.create({ ...req.body, owner: req.user._id });
+    let newArticle = await Article.create({ ...req.body, owner: req.user._id });
     if (!newArticle) {
-      throw new NotFoundError('Ошибка! Что-то пошло не так. Попробуйте еще раз');
+      throw new NotFoundError(messages.notFoundUnknownErr);
     }
+    newArticle = newArticle.toJSON();
+    delete newArticle.owner;
+
     return res.status(201).send(newArticle);
   } catch (error) {
     return next(error);
@@ -25,20 +29,22 @@ const createArticle = async (req, res, next) => {
 const deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
     .orFail(() => {
-      throw new NotFoundError('Ошибка! Что-то пошло не так. Попробуйте еще раз');
+      throw new NotFoundError(messages.notFoundArticleErr);
     })
     .select('+owner')
     .then((article) => {
       if (article.owner !== req.user._id) {
-        throw new ForbiddenError('Вы не можете удалить чужую статью');
+        throw new ForbiddenError(messages.forbiddenArticleRemovalErr);
       }
-      return Article.findByIdAndRemove(req.params.articleId);
+      return article.remove();
     })
     .then((article) => {
       if (!article) {
-        throw new NotFoundError('Ошибка! Что-то пошло не так. Попробуйте еще раз');
+        throw new NotFoundError(messages.notFoundUnknownErr);
       }
-      return res.status(200).send(article);
+      const response = article.toJSON();
+      delete response.owner;
+      return res.status(200).send(response);
     })
     .catch(next);
 };

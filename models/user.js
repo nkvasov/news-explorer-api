@@ -23,9 +23,14 @@ const userSchema = new Schema({
     type: String,
     required: true,
     select: false,
-    minlength: 5,
-    maxlength: 20,
+    maxlength: 100,
   },
 });
+
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
 module.exports = model('user', userSchema);
