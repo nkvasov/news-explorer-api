@@ -1,10 +1,23 @@
 # News-explorer-API
 **Дипломный проект в Яндекс Практикуме**
 
-Api реализован на express и Mongo.
+News Explorer – одностраничное приложение для поиска новостей по ключевому слову с помощью News API. В приложении реализован функционал для регистрации и авторизации пользователя. Включена возможность сохранения новостей в "Избранное". Проект включает в себя фронтенд- и бэкенд-части.
 
-## IP-адрес сервера:
-[http://084.201.158.199/](http://084.201.158.199/)
+## Проект развернут по адресу:
+[https://nkvasov.github.io/news-explorer-frontend/](https://nkvasov.github.io/news-explorer-frontend/)
 
-## Домен сервера:
-[https://www.api.nkvasov.students.nomoreparties.space/](https://www.api.nkvasov.students.nomoreparties.space/)
+## Репозиторий фронтенд-части
+[https://github.com/nkvasov/news-explorer-frontend](https://github.com/nkvasov/news-explorer-frontend)
+
+## Технологии
+
+### Backend
+
+* **Node.js/Express.js**;
+* хранение и работа с данными – **MongoDB**;
+* валидация входящих данных (модули *validator*, *joi/celebrate*);
+* авторизация с использованием JWT-токена; 
+* централизованная обработка ошибок с отправкой сообщений об ошибках на запросы;
+* логирование ошибок при помощи модуля *winston*.
+
+Код стандартизирован при помощи ESLint (конфигурация airbnb-base).
